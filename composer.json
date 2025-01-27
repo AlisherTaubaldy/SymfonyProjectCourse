@@ -23,6 +23,7 @@
         "symfony/security-bundle": "7.2.*",
         "symfony/twig-bundle": "7.2.*",
         "symfony/validator": "7.2.*",
+        "symfony/web-profiler-bundle": "7.2.*",
         "symfony/yaml": "7.2.*"
     },
     "config": {
@@ -73,8 +74,5 @@
             "allow-contrib": false,
             "require": "7.2.*"
         }
-    },
-    "require-dev": {
-        "symfony/web-profiler-bundle": "^7.2.2"
     }
 }
