@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "task4symfony",
+  "private_key_id": "4fb835c672fc696aa3b75111f6b81926975f8193",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDEdYu3IRUGeTNU\nrMrqBzLAzPPPMSdDpJvk3GC8Kjbbf97wUXyKOXWFgqAOSzpFikL8LY3Hb/IMUuP1\nHc7jKv8pJr5YGaW2QNxaqPGNAehoI0F6KpmqJJ/yrGQNnRf4LV8LQTtOpNTy1oQ1\nSNWFy53q5aZE+a749P7WoFMRV+a/bm9Co7AnECvz4DqbvJFmC0z1eR4xoJTUtCcF\nYmQ/zWoUY+paXxUKQ46VYHLt8Z/1PMZkN8rYKZ7j2VnmU92R/DSN6kXltcpu2O7W\nGks311eEbwdXEPX2WLTcymC8xOVCil0+9LZO40Rbp7IzbjqpdEK5U5nGhjjwRT3a\nQsBWRMqBAgMBAAECggEAVfN5Z2rtWHIxP3QDqMTycwCYEIdYPtNnMwcpuVkcvAaj\nQm/cNVszK/C81tQZz+/QI6VIeL9k3fhr7EMYzzFyBg6By2iZI/YXkgCFAaSaiekW\nzfySUyqH4fODKKOYp4cuJG3rJRqfYgjxOaC+bjVpxymnB1lXsGr7jWoCPb2/4fMJ\nknzJQndVPvMdC4xzTI9afEfgFvES/Anx/Jykf+k+MRNA46oQUylbosDnqhDzo/zl\nc7KfOcB6bQHElkfhdLmM82Ep8Yagx7GbL6hD0l8cYlxi1wybLYl5Nf+5SSsh7V3J\n7fS3ziHM9oi7SrccihPdaSRvlBQIvJPbjTei1HdrAwKBgQDzFZnKS1d5wRm0p1v+\nKNjC9QUmR6SHDFqkRjisdI2q7JO17JfYu6bvU25P3eeMe13RfIRrnCqrAdqpCSzC\nVbuOG/wJgLOqkyaI3DEBXb1+fN1FDTMhRbZ0fdhghXx0QAcbbLbVjEHVkd9iXoLy\nYaBLGmhC3NuUz7OSvj+49d1ezwKBgQDO5cFlngDCiOnjhd/vlwwTNmQLtb4yzH9d\n8qAMuZqzFf9ETMCiE1tTcOL6LNv3x9jPWxT5QnQsGKKTWJoOwKN5CAHgI9f3WNs+\nEXy5Pdz8JTECQt8gvInaMuSh6RfVlFocwdkK5ja/DBZtmFYPOMscQir2H8fbRuy1\n1hQODLYVrwKBgHpi0b9MF4qxciPGb0aTgi8F9cXEJE3qJmi3AimxtPHtkqDxsbHp\nKK8uLkf/zWipZB7otjMHuWPH1zNr7yEY0QlHhamzJsImvCwD0JiDfbiFXVI6xxdl\nZetYwOw3yOUup2VjYto5d5vziaiZNQybonytmvivAc72k866ApM5Fm95AoGAYV3q\nx+G1xdcdCwAjxOM2wYvlRUWAfvOSNSpLe/GVBhaiDQh510x4vCnyB344/sDEHcFl\ne3B0r5PgXqthxPOPexPzngIATt04QFuGcL7WUqtGByRlUUipL1CoHDJQDylDxyjK\n9cAln38Wxvjb90no/CF/ilime2FDYMegpIQC5O0CgYEAhURXd6WAY57Qicl3ueEK\nePCU/HQ8spRs0lYpvXElkY7TQnFvY7387OB5064x93iw8pKIH/IQs+dZbrD5np0J\ns8LL2HLXlZWuVrOauOsb2HNFHAEMj/nQWABX5QvIYJyqllfXQlgKVSoS7+9Qho8/\n7nNYsGirYLr0S0ipaSF5Yo4=\n-----END PRIVATE KEY-----\n",
+  "client_email": "task4symfonyservice@task4symfony.iam.gserviceaccount.com",
+  "client_id": "114856343604045295271",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/task4symfonyservice%40task4symfony.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

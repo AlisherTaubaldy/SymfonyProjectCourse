@@ -1,5 +1,7 @@
 # Используем PHP 8.2
 FROM php:8.2-fpm
+COPY . /var/www/html/
+ENTRYPOINT ["docker-php-entrypoint"]
 
 # Устанавливаем системные зависимости
 RUN apt-get update && apt-get install -y \
