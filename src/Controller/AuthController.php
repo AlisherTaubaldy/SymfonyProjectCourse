@@ -8,6 +8,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
@@ -24,20 +25,17 @@ final class AuthController extends AbstractController
         if ($request->isMethod('POST')) {
             $data = $request->request->all();
 
-            // Валидация данных
             if (empty($data['name']) || empty($data['email']) || empty($data['password'])) {
                 $this->addFlash('error', 'All fields are required.');
                 return $this->redirectToRoute('app_register');
             }
 
-            // Проверяем, существует ли пользователь с таким email
             $existingUser = $entityManager->getRepository(User::class)->findOneBy(['email' => $data['email']]);
             if ($existingUser) {
                 $this->addFlash('error', 'Email is already in use.');
                 return $this->redirectToRoute('app_register');
             }
 
-            // Создаем нового пользователя
             $user = new User();
             $user->setName($data['name']);
             $user->setEmail($data['email']);
@@ -45,7 +43,6 @@ final class AuthController extends AbstractController
             $user->setCreatedAt(new \DateTimeImmutable());
             $user->setStatus('active');
 
-            // Сохраняем в базе данных
             $entityManager->persist($user);
             $entityManager->flush();
 
@@ -57,11 +54,10 @@ final class AuthController extends AbstractController
     }
 
     #[Route('/login', name: 'app_login', methods: ['GET', 'POST'])]
-    public function showLoginForm(AuthenticationUtils $authenticationUtils): Response
+    public function showLoginForm(AuthenticationUtils $authenticationUtils, SessionInterface $session): Response
     {
-        // Получаем последнюю ошибку входа
-        $error = $authenticationUtils->getLastAuthenticationError();
-        // Последний введенный email
+        $error = $session->getFlashBag()->get('error')[0] ?? null;
+
         $lastUsername = $authenticationUtils->getLastUsername();
 
         return $this->render('auth/login.html.twig', [
@@ -69,6 +65,9 @@ final class AuthController extends AbstractController
             'error' => $error,
         ]);
     }
+
+
+
 
     #[Route('/logout', name: 'app_logout')]
     public function logout(): void

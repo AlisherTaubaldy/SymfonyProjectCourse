@@ -44,22 +44,18 @@ class UserAuthenticator extends AbstractAuthenticator
         $email = $request->request->get('_email');
         $password = $request->request->get('_password');
 
-        // Get the user from the database
         $user = $this->getUserByEmail($email);
 
-        // If the user is not found, throw an authentication exception
         if (!$user) {
             throw new CustomUserMessageAuthenticationException('User not found.');
         }
 
-        // If the user is blocked, throw an authentication exception
         if ($user->getStatus() === 'blocked') {
             throw new CustomUserMessageAuthenticationException('Your account is blocked.');
         }
 
-        // Create a SelfValidatingPassport with only the UserBadge for identifying the user
         return new SelfValidatingPassport(
-            new UserBadge($email)  // UserBadge is used to identify the user by email
+            new UserBadge($email)
         );
     }
 
@@ -71,17 +67,15 @@ class UserAuthenticator extends AbstractAuthenticator
         $email = $request->request->get('_email');
         $password = $request->request->get('_password');
 
-        // Get the user from the database
         $user = $this->getUserByEmail($email);
 
         if ($user) {
-            // Update lastLogin field
-            $user->setLastLogin(new \DateTime());  // Set current datetime
-            $this->entityManager->persist($user);  // Mark the user entity as changed
-            $this->entityManager->flush();  // Save the changes to the database
+            $user->setLastLogin(new \DateTime());
+            $this->entityManager->persist($user);
+            $this->entityManager->flush();
         }
-        // Redirect the user to a dashboard or home page after successful authentication
-        return new RedirectResponse($this->urlGenerator->generate('app_users')); // Замените на нужный маршрут
+
+        return new RedirectResponse($this->urlGenerator->generate('app_users'));
     }
 
     /**
@@ -89,8 +83,9 @@ class UserAuthenticator extends AbstractAuthenticator
      */
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
-        // В случае неудачной аутентификации перенаправляем обратно на страницу логина с ошибкой
-        return new RedirectResponse($this->urlGenerator->generate('app_login')); // Замените на маршрут страницы входа
+        $request->getSession()->getFlashBag()->add('error', $exception->getMessage());
+
+        return new RedirectResponse($this->urlGenerator->generate('app_login'));
     }
 
     /**

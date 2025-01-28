@@ -15,9 +15,12 @@ class UserController extends AbstractController
     #[Route('/users', name: 'app_users', methods: ['GET'])]
     public function index(EntityManagerInterface $entityManager): Response
     {
-        // Получаем список всех пользователей
+        if ($response = $this->redirectIfUserBlocked()) {
+            return $response;
+        }
+
         $users = $entityManager->getRepository(User::class)
-            ->findBy([], ['lastLogin' => 'DESC']);  // Сортировка по lastLogin DESC
+            ->findBy([], ['lastLogin' => 'DESC']);
 
         return $this->render('user/index.html.twig', [
             'users' => $users,
@@ -27,24 +30,18 @@ class UserController extends AbstractController
     #[Route('/users/action', name: 'app_users_action', methods: ['POST'])]
     public function handleUserActions(Request $request, EntityManagerInterface $entityManager): Response
     {
-        // Получаем выбранные ID пользователей из POST-запроса
         $userIds = $request->request->all('user_ids');
         $action = $request->request->get('action');
 
         if (empty($userIds)) {
             $this->addFlash('error', 'No users selected.');
-            return $this->redirectToRoute('app_users'); // Предположим, маршрут списка пользователей
+            return $this->redirectToRoute('app_users');
         }
 
-        $currentUser = $this->getUser();
-
-        // Проверяем, заблокирован ли текущий пользователь, который пытается выполнить действия
-        if ($currentUser && $currentUser->getStatus() === 'blocked') {
-            $this->addFlash('error', 'Your account is blocked. Please log in again.');
-            return $this->redirectToRoute('app_login'); // Перенаправление на страницу входа
+        if ($response = $this->redirectIfUserBlocked()) {
+            return $response;
         }
 
-        // Получаем пользователей из базы данных
         $users = $entityManager->getRepository(User::class)->findBy(['id' => $userIds]);
 
         switch ($action) {
@@ -74,10 +71,24 @@ class UserController extends AbstractController
                 return $this->redirectToRoute('app_users');
         }
 
-        // Применяем изменения в базе данных
         $entityManager->flush();
 
         return $this->redirectToRoute('app_users');
+    }
+
+    private function isUserBlocked(): bool
+    {
+        $currentUser = $this->getUser();
+        return $currentUser && $currentUser->getStatus() === 'blocked';
+    }
+
+    private function redirectIfUserBlocked(): ?Response
+    {
+        if ($this->isUserBlocked()) {
+            $this->addFlash('error', 'Your account is blocked. Please log in again.');
+            return $this->redirectToRoute('app_login');
+        }
+        return null;
     }
 
 }
