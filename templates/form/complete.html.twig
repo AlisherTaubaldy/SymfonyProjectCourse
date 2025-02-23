@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1 class="mb-3">Результаты заполнения</h1>
+
+        <div class="list-group">
+            {% for answer in form.answers %}
+                <div class="list-group-item">
+                    <h4 class="mb-2">{{ answer.question.title }}</h4>
+
+                    {% if answer.question.description %}
+                        <p class="text-muted">{{ answer.question.description }}</p>
+                    {% endif %}
+
+                    <p><strong>Ваш ответ:</strong>
+                        {% if answer.selectedOptions is not empty %}
+                    <ul>
+                        {% for option in answer.selectedOptions %}
+                            <li>
+                                {{ option.value }}
+                                {% if option.isCorrect %} ✅ (Правильный) {% else %} ❌ (Неправильный) {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% elseif answer.value is not empty %}
+                    {{ answer.value }}
+                {% else %}
+                    <span class="text-muted">Нет ответа</span>
+                    {% endif %}
+                    </p>
+                </div>
+            {% endfor %}
+        </div>
+
+        <a href="{{ path('template_index') }}" class="btn btn-primary mt-4">Вернуться на главную</a>
+    </div>
+{% endblock %}

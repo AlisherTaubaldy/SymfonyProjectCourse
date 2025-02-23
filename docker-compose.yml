@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
     image: php:8.2-fpm
-    container_name: symfony_app
+    container_name: symfony_forms
     volumes:
       - .:/var/www/html
     working_dir: /var/www/html
@@ -44,3 +44,5 @@ services:
 networks:
   symfony_network:
     driver: bridge
+
+

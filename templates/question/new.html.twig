@@ -1,0 +1,69 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="container">
+        <h1>{{ question is defined ? 'Редактировать вопрос' : 'Добавить вопрос в "' ~ template.title ~ '"' }}</h1>
+
+        {{ form_start(form) }}
+        {% for field in form %}
+            {% if field.vars.name != 'save' and field.vars.name != 'options' %}
+                <div class="mb-3">
+                    {{ form_label(field) }}
+                    {{ form_widget(field) }}
+                    {% for error in form_errors(field) %}
+                        <div class="alert alert-danger">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endfor %}
+
+        <!--<input type="hidden" name="question[options]" value="">-->
+
+        <!-- Блок для вариантов ответа -->
+        <div id="options-container" style="display: none;">
+            <label>Варианты ответов</label>
+            <div id="options-list">
+                {% for option in form.options %}
+                    <div class="option-field">
+                        {{ form_widget(option) }}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <br>
+        {{ form_widget(form.save, {'attr': {'class': 'btn btn-primary'}}) }}
+        <a href="{{ path('template_show', { id: template.id }) }}" class="btn btn-secondary">Отмена</a>
+
+        {{ form_end(form) }}
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let typeField = document.querySelector(".question-type");
+            let optionsContainer = document.getElementById("options-container");
+            let optionsList = document.getElementById("options-list");
+
+            function updateOptionsVisibility() {
+                let selectedType = typeField.value;
+                optionsContainer.style.display = (selectedType === "radio" || selectedType === "multiple_choice") ? "block" : "none";
+
+                // Очистка вариантов, если тип не поддерживает их
+                if (selectedType !== "radio" && selectedType !== "multiple_choice") {
+                    optionsList.innerHTML = "";
+                } else if (optionsList.children.length === 0) {
+                    // Автоматически добавляем 4 поля, если вариантов ещё нет
+                    for (let i = 0; i < 4; i++) {
+                        let div = document.createElement("div");
+                        div.classList.add("option-field");
+                        div.innerHTML = `<input type="text" name="options[]" class="form-control" placeholder="Вариант ответа ${i + 1}">`;
+                        optionsList.appendChild(div);
+                    }
+                }
+            }
+
+            typeField.addEventListener("change", updateOptionsVisibility);
+            updateOptionsVisibility(); // Проверка при загрузке
+        });
+    </script>
+{% endblock %}

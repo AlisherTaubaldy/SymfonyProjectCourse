@@ -30,6 +30,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 20, options: ['default' => 'active'])]
     private ?string $status = 'active';
 
+    #[ORM\Column(length: 255, options: ['default' => 'ROLE_USER'])]
+    private ?string $role = 'ROLE_USER';
+
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $lastLogin = null;
 
@@ -113,12 +116,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    public function getRole(): ?string
+    {
+        return $this->role;
+    }
+
+    public function setRole(string $role): static
+    {
+        $this->role = $role;
+        return $this;
+    }
     /**
      * Возвращает роли пользователя.
      */
     public function getRoles(): array
     {
-        return ['ROLE_USER'];
+        return [$this->role];
     }
 
     /**

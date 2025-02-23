@@ -1,11 +1,39 @@
-
-###> symfony/framework-bundle ###
+### Symfony Framework ###
 /.env.local
 /.env.local.php
 /.env.*.local
 /config/secrets/prod/prod.decrypt.private.php
 /public/bundles/
 /var/
+### Исключаем кеш и логи ###
+/var/cache/
+/var/logs/
+/var/sessions/
+/var/tmp/
+/var/bootstrap.php.cache
+/var/.phpunit.result.cache
+
+### Composer ###
 /vendor/
-###< symfony/framework-bundle ###
-.env
+
+### Webpack Encore ###
+/node_modules/
+/public/build/
+/public/assets/
+/public/css/
+/public/js/
+/public/fonts/
+/public/images/
+npm-debug.log
+yarn-error.log
+.pnp
+.pnp.js
+
+### IDE/Editor ###
+.vscode/
+.idea/
+*.iml
+
+### OS/System ###
+.DS_Store
+Thumbs.db

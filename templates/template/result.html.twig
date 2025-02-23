@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="container">
+        <h1>Результаты: "{{ template.title }}"</h1>
+
+        {% if template.forms is empty %}
+            <p>Пока нет заполненных форм.</p>
+        {% else %}
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Пользователь</th>
+                    <th>Дата</th>
+                    <th>Действия</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for form in template.forms %}
+                    <tr>
+                        <td>{{ form.user.email }}</td>
+                        <td>{{ form.createdAt|date('d.m.Y H:i') }}</td>
+                        <td>
+                            <a href="{{ path('form_show', { id: form.id }) }}" class="btn btn-primary btn-sm">Просмотр</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+
+        <a href="{{ path('template_show', { id: template.id }) }}" class="btn btn-secondary">Назад</a>
+    </div>
+{% endblock %}

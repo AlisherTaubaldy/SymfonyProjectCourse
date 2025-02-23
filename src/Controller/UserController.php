@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Controller;
 
 use App\Entity\User;
@@ -90,5 +89,4 @@ class UserController extends AbstractController
         }
         return null;
     }
-
 }

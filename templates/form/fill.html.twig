@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1 class="mb-3">{{ template.title }}</h1>
+        <p class="text-muted">{{ template.description }}</p>
+
+        {{ form_start(form) }}
+
+        {% for field in form %}
+            {% if field.vars.name != 'submit' and field.vars.name != '_token'%}
+                <div class="mb-4 p-3 border rounded bg-light">
+                    {% if field.vars.label %}
+                        <h4 class="mb-2">{{ field.vars.label }}</h4>
+                    {% endif %}
+
+                    {% if field.vars.help %}
+                        <p class="text-muted">{{ field.vars.help }}</p>
+                    {% endif %}
+
+                    {% if field.vars.block_prefixes[1] == 'choice' and field.vars.expanded %}
+                        <div class="form-group">
+                            {% for choice in field %}
+                                <div class="form-check">
+                                    {{ form_widget(choice, {'attr': {'class': 'form-check-input'}}) }}
+                                    {{ form_label(choice, null, {'attr': {'class': 'form-check-label'}}) }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form_widget(field) }}
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% endfor %}
+
+        {{ form_row(form._token) }}
+
+
+        {{ form_widget(form.submit, {'attr': {'class': 'btn btn-primary'}}) }}
+
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

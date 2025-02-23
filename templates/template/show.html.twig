@@ -1,0 +1,210 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="container">
+        <h1>{{ template.title }}</h1>
+        <p>{{ template.description }}</p>
+
+        <div class="row">
+            <!-- ✅ Список вопросов слева -->
+            <div class="col-md-7">
+                <h3>Список вопросов</h3>
+                <div id="questions-list">
+                    {% for question in template.questions %}
+                        <div class="question-item p-3 mb-3 border rounded">
+                            <h5>{{ question.title }}</h5>
+                            <p>{{ question.description }}</p>
+                            <p><strong>Тип:</strong> {{ question.type }}</p>
+                            <p><strong>Варианты:</strong></p>
+                            <ul>
+                                {% for option in question.options %}
+                                    <li>
+                                        {{ option.value }}
+                                        {% if option.isCorrect %} ✅ {% endif %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+
+                            <button class="btn btn-primary edit-question" data-id="{{ question.id }}">✏ Редактировать</button>
+                            <button class="btn btn-danger delete-question" data-id="{{ question.id }}">🗑 Удалить</button>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- ✅ Форма справа -->
+            <div class="col-md-5">
+                <h3 id="form-title">Добавить новый вопрос</h3>
+                <form id="question-form">
+                    {{ form_start(form, { 'attr': {'id': 'question-form'} }) }}
+
+                    <!-- Основные поля -->
+                    {% for field in form %}
+                        {% if field.vars.name != 'save' and field.vars.name != 'options' %}
+                            <div class="mb-3">
+                                {{ form_label(field) }}
+                                {{ form_widget(field) }}
+                                {% for error in form_errors(field) %}
+                                    <div class="alert alert-danger">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+
+                    <!-- Варианты ответа -->
+                    <div id="options-container" style="display: none;">
+                        <label>Варианты ответов</label>
+                        <div id="options-list"></div>
+                    </div>
+
+                    {{ form_widget(form.save, {'attr': {'class': 'btn btn-primary', 'id': 'question-save'}}) }}
+                    <input type="hidden" id="question-id" name="question_id">
+                    {{ form_end(form) }}
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let form = document.getElementById("question-form");
+            let optionsContainer = document.getElementById("options-container");
+            let optionsList = document.getElementById("options-list");
+            let typeField = document.querySelector("#question_type");
+            let formTitle = document.getElementById("form-title");
+            let questionIdInput = document.getElementById("question-id");
+            let questionSaveButton = document.getElementById("question_save");
+
+            function updateOptionsVisibility(clear = true) {
+                let selectedType = typeField.value;
+                optionsContainer.style.display = (selectedType === "radio" || selectedType === "multiple_choice") ? "block" : "none";
+
+                if (clear && (selectedType === "radio" || selectedType === "multiple_choice")) {
+                    optionsList.innerHTML = "";
+
+                    for (let i = 0; i < 4; i++) {
+                        let div = document.createElement("div");
+                        div.classList.add("option-field");
+                        div.innerHTML = `
+                <div class="d-flex">
+                    <input type="text" name="options[]" class="form-control me-2" placeholder="Вариант ответа ${i + 1}">
+                    <input type="checkbox" name="is_correct[]" value="${i}" title="Правильный ответ">
+                </div>`;
+                        optionsList.appendChild(div);
+                    }
+                }
+
+                // Добавляем обработчик для чекбоксов
+                attachCorrectAnswerHandlers();
+            }
+
+            function attachCorrectAnswerHandlers() {
+                let selectedType = typeField.value;
+
+                document.querySelectorAll("input[name='is_correct[]']").forEach(checkbox => {
+                    checkbox.addEventListener("change", function () {
+                        if (selectedType === "radio") {
+                            // Снять выделение у других чекбоксов
+                            document.querySelectorAll("input[name='is_correct[]']").forEach(otherCheckbox => {
+                                if (otherCheckbox !== this) {
+                                    otherCheckbox.checked = false;
+                                }
+                            });
+                        }
+                    });
+                });
+            }
+
+            typeField.addEventListener("change", function () {
+                updateOptionsVisibility();
+            });
+
+            // ✅ Создание или редактирование вопроса
+            form.addEventListener("submit", function (e) {
+                e.preventDefault();
+                let formData = new FormData(form);
+                let isEditMode = !!questionIdInput.value;
+                let url = isEditMode ? `/question/edit/${questionIdInput.value}` : "{{ path('question_new', {template: template.id}) }}";
+
+                fetch(url, {
+                    method: "POST",
+                    body: formData,
+                    headers: { "X-Requested-With": "XMLHttpRequest" }
+                }).then(response => response.json()).then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert("Ошибка при сохранении");
+                    }
+                });
+            });
+
+            // ✅ Редактирование вопроса
+            document.querySelectorAll(".edit-question").forEach(button => {
+                button.addEventListener("click", function () {
+                    let questionId = this.dataset.id;
+                    fetch(`/question/get/${questionId}`, {
+                        headers: { "X-Requested-With": "XMLHttpRequest" }
+                    }).then(response => response.json()).then(data => {
+                        document.querySelector("#question_title").value = data.title;
+                        document.querySelector("#question_description").value = data.description;
+                        document.querySelector("#question_type").value = data.type;
+                        questionIdInput.value = data.id;
+                        formTitle.innerText = "Редактировать вопрос";
+                        questionSaveButton.textContent = "Сохранить изменения";
+
+                        optionsList.innerHTML = "";
+
+                        if (data.options.length > 0) {
+                            optionsContainer.style.display = "block";
+                            data.options.forEach((option) => {
+                                let div = document.createElement("div");
+                                div.classList.add("option-field");
+                                div.innerHTML = `
+                        <div class="d-flex">
+                            <input type="text" name="options[]" class="form-control me-2" value="${option.value}">
+                            <input type="hidden" name="option_ids[]" value="${option.id}">
+                            <input type="checkbox" name="is_correct[]" value="${option.id}" ${option.is_correct ? 'checked' : ''} title="Правильный ответ">
+                        </div>`;
+                                optionsList.appendChild(div);
+                            });
+                        } else {
+                            optionsContainer.style.display = "none";
+                        }
+
+                        // ✅ Переподключаем обработчики к чекбоксам правильных ответов
+                        attachCorrectAnswerHandlers();
+                    });
+                });
+            });
+
+            // ✅ Удаление вопроса
+            document.querySelectorAll(".delete-question").forEach(button => {
+                button.addEventListener("click", function () {
+                    let questionId = this.dataset.id;
+                    fetch(`/question/delete/${questionId}`, {
+                        method: "POST",
+                        headers: { "X-Requested-With": "XMLHttpRequest" }
+                    }).then(response => response.json()).then(data => {
+                        if (data.success) {
+                            location.reload();
+                        } else {
+                            alert("Ошибка при удалении");
+                        }
+                    });
+                });
+            });
+
+            // ✅ Очистка формы для нового вопроса
+            function resetForm() {
+                form.reset();
+                questionIdInput.value = "";
+                formTitle.innerText = "Добавить новый вопрос";
+                questionSaveButton.textContent = "Добавить вопрос";
+                updateOptionsVisibility();
+            }
+        });
+
+    </script>
+
+{% endblock %}
