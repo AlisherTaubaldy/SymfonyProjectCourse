@@ -1,0 +1,98 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1 class="mb-3">Доступные опросы</h1>
+
+        {% if templates is empty %}
+            <p class="text-muted">Нет доступных шаблонов.</p>
+        {% else %}
+            <ul class="list-group">
+                {% for template in templates %}
+                    <li class="list-group-item">
+                        <h5>{{ template.title }}</h5>
+                        <p>{{ template.description }}</p>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted">Автор: {{ template.author.name }}</span>
+
+                            <div>
+                                <button class="btn btn-outline-primary like-button" data-id="{{ template.id }}">
+                                    👍 <span class="like-count">{{ template.likes|length }}</span>
+                                </button>
+
+                                <button class="btn btn-outline-secondary comment-toggle" data-id="{{ template.id }}">
+                                    💬 <span class="comment-count">{{ template.comments|length }}</span>
+                                </button>
+
+                                <a href="{{ path('form_fill', { template: template.id }) }}" class="btn btn-success">
+                                    Заполнить
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="comments mt-3 d-none" id="comments-{{ template.id }}">
+                            <h6>Комментарии</h6>
+                            <ul class="list-group">
+                                {% for comment in template.comments %}
+                                    <li class="list-group-item">
+                                        <strong>{{ comment.user.name }}</strong>: {{ comment.content }}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                            <textarea class="form-control mt-2 comment-input" data-id="{{ template.id }}" placeholder="Добавьте комментарий..."></textarea>
+                            <button class="btn btn-sm btn-primary mt-2 comment-submit" data-id="{{ template.id }}">Добавить</button>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".like-button").forEach(button => {
+                button.addEventListener("click", function () {
+                    let templateId = this.dataset.id;
+                    fetch(`/like/${templateId}`, {
+                        method: "POST",
+                        headers: { "X-Requested-With": "XMLHttpRequest" }
+                    }).then(response => response.json()).then(data => {
+                        this.querySelector(".like-count").textContent = data.likes;
+                        this.classList.toggle("btn-primary", data.liked);
+                        this.classList.toggle("btn-outline-primary", !data.liked);
+                    });
+                });
+            });
+
+            document.querySelectorAll(".comment-toggle").forEach(button => {
+                button.addEventListener("click", function () {
+                    let templateId = this.dataset.id;
+                    let commentsBlock = document.getElementById(`comments-${templateId}`);
+                    commentsBlock.classList.toggle("d-none");
+                });
+            });
+
+            document.querySelectorAll(".comment-submit").forEach(button => {
+                button.addEventListener("click", function () {
+                    let templateId = this.dataset.id;
+                    let input = document.querySelector(`.comment-input[data-id='${templateId}']`);
+                    let content = input.value.trim();
+                    if (!content) return;
+
+                    fetch(`/comment/${templateId}`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/x-www-form-urlencoded", "X-Requested-With": "XMLHttpRequest" },
+                        body: `content=${encodeURIComponent(content)}`
+                    }).then(response => response.json()).then(data => {
+                        if (data.success) {
+                            location.reload();
+                        } else {
+                            alert("Ошибка: " + (data.error || "Не удалось добавить комментарий"));
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+{% endblock %}

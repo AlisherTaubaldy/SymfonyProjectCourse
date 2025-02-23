@@ -15,10 +15,49 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/form')]
 class FormController extends AbstractController
 {
+
+    #[Route('/', name: 'form_available', methods: ['GET'])]
+    public function availableForms(EntityManagerInterface $entityManager)
+    {
+        $user = $this->getUser();
+
+        // Получаем все публичные шаблоны + личные шаблоны пользователя
+        $qb = $entityManager->createQueryBuilder();
+        $qb->select('t')
+            ->from(Template::class, 't')
+            ->leftJoin(Form::class, 'f', 'WITH', 'f.template = t AND f.user = :user')
+            ->where('t.isPublic = true OR t.author = :user')
+            ->setParameter('user', $user)
+            ->orderBy('t.createdAt', 'DESC');
+
+        $templates = $qb->getQuery()->getResult();
+
+
+        return $this->render('form/available.html.twig', [
+            'templates' => $templates,
+        ]);
+    }
+
+
+    #[Route('/filled', name: 'form_list', methods: ['GET'])]
+    public function listForms(EntityManagerInterface $entityManager)
+    {
+        $user = $this->getUser();
+
+        if ($this->isGranted('ROLE_ADMIN')) {
+            $forms = $entityManager->getRepository(Form::class)->findBy([], ['createdAt' => 'DESC']);
+        } else {
+            $forms = $entityManager->getRepository(Form::class)->findBy(['user' => $user], ['createdAt' => 'DESC']);
+        }
+
+        return $this->render('form/index.html.twig', [
+            'forms' => $forms,
+        ]);
+    }
+
     #[Route('/{template}', name: 'form_fill', methods: ['GET', 'POST'])]
     public function fillForm(Request $request, Template $template, EntityManagerInterface $entityManager)
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
         // Получаем или создаем форму пользователя
         $formEntity = $entityManager->getRepository(Form::class)->findOneBy([
@@ -79,12 +118,9 @@ class FormController extends AbstractController
     #[Route('/complete/{id}', name: 'form_complete', methods: ['GET'])]
     public function completeForm(Form $form)
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
         return $this->render('form/complete.html.twig', [
             'form' => $form
         ]);
     }
-
-
 }

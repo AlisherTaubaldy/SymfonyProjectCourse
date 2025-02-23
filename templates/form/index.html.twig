@@ -1,20 +1,22 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello FormController!{% endblock %}
-
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+    <div class="container">
+        <h1>Мои заполненные формы</h1>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
-
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>/Users/alishertaubaldy/Symfony_froms/src/Controller/FormController.php</code></li>
-        <li>Your template at <code>/Users/alishertaubaldy/Symfony_froms/templates/form/index.html.twig</code></li>
-    </ul>
-</div>
+        {% if forms is empty %}
+            <p>Вы еще не заполняли формы.</p>
+        {% else %}
+            <ul class="list-group">
+                {% for form in forms %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <a href="{{ path('form_complete', { id: form.id }) }}">
+                            {{ form.template.title }} ({{ form.createdAt|date('d.m.Y H:i') }})
+                        </a>
+                        <span class="badge bg-secondary">{{ form.user.name }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
 {% endblock %}

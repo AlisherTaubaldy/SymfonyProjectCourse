@@ -47,9 +47,21 @@ class Template
     #[ORM\OneToMany(targetEntity: Question::class, mappedBy: "template", cascade: ["persist", "remove"])]
     private Collection $questions;
 
+    #[ORM\OneToMany(targetEntity: Form::class, mappedBy: "template", cascade: ["persist", "remove"])]
+    private Collection $forms;
+
+    #[ORM\OneToMany(targetEntity: Like::class, mappedBy: "template", cascade: ["persist", "remove"])]
+    private Collection $likes;
+
+    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: "template", cascade: ["persist", "remove"])]
+    private Collection $comments;
+
     public function __construct()
     {
         $this->questions = new ArrayCollection();
+        $this->forms = new ArrayCollection();
+        $this->likes = new ArrayCollection();
+        $this->comments = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
     }
 
@@ -160,6 +172,60 @@ class Template
         if ($this->questions->removeElement($question)) {
             if ($question->getTemplate() === $this) {
                 $question->setTemplate(null);
+            }
+        }
+        return $this;
+    }
+
+    public function getForms(): Collection
+    {
+        return $this->forms;
+    }
+
+    public function getLikes(): Collection
+    {
+        return $this->likes;
+    }
+
+    public function addLike(Like $like): static
+    {
+        if (!$this->likes->contains($like)) {
+            $this->likes->add($like);
+            $like->setTemplate($this);
+        }
+        return $this;
+    }
+
+    public function removeLike(Like $like): static
+    {
+        if ($this->likes->removeElement($like)) {
+            if ($like->getTemplate() === $this) {
+                $like->setTemplate(null);
+            }
+        }
+        return $this;
+    }
+
+
+    public function getComments(): Collection
+    {
+        return $this->comments;
+    }
+
+    public function addComment(Comment $comment): static
+    {
+        if (!$this->comments->contains($comment)) {
+            $this->comments->add($comment);
+            $comment->setTemplate($this);
+        }
+        return $this;
+    }
+
+    public function removeComment(Comment $comment): static
+    {
+        if ($this->comments->removeElement($comment)) {
+            if ($comment->getTemplate() === $this) {
+                $comment->setTemplate(null);
             }
         }
         return $this;

@@ -8,6 +8,7 @@ use App\Form\TemplateType;
 use App\Repository\TemplateRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -18,7 +19,16 @@ class TemplateController extends AbstractController
     #[Route('/', name: 'template_index', methods: ['GET'])]
     public function index(TemplateRepository $templateRepository): Response
     {
-        $templates = $templateRepository->findBy([], ['createdAt' => 'DESC']);
+        $user = $this->getUser();
+
+        if ($this->isGranted('ROLE_ADMIN')) {
+            // Если админ, показываем все шаблоны
+            $templates = $templateRepository->findBy([], ['createdAt' => 'DESC']);
+        } else {
+            // Если обычный пользователь, показываем только его шаблоны
+            $templates = $templateRepository->findBy(['author' => $user], ['createdAt' => 'DESC']);
+        }
+
         return $this->render('template/index.html.twig', [
             'templates' => $templates,
         ]);
@@ -44,7 +54,7 @@ class TemplateController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'template_show', methods: ['GET', 'POST'])]
+    #[Route('/{id}/edit', name: 'template_edit', methods: ['GET', 'POST'])]
     public function show(Request $request, Template $template, EntityManagerInterface $entityManager): Response
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
@@ -72,41 +82,20 @@ class TemplateController extends AbstractController
         ]);
     }
 
-
-    #[Route('/{id}/edit', name: 'template_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Template $template, EntityManagerInterface $entityManager): Response
-    {
-        $this->denyAccessUnlessGranted('edit', $template);
-
-        $form = $this->createForm(TemplateType::class, $template);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-            return $this->redirectToRoute('template_index');
-        }
-
-        return $this->render('template/edit.html.twig', [
-            'form' => $form->createView(),
-        ]);
-    }
-
     #[Route('/delete/{id}', name: 'template_delete', methods: ['POST'])]
-    public function delete(Request $request, Template $template, EntityManagerInterface $entityManager): Response
+    public function delete(Template $template, EntityManagerInterface $entityManager): JsonResponse
     {
-        // Проверяем, может ли пользователь удалить шаблон
-        if (!$this->isGranted('ROLE_ADMIN') && $this->getUser() !== $template->getAuthor()) {
-            $this->addFlash('danger', 'Вы не можете удалить этот шаблон.');
-            return $this->redirectToRoute('template_show', ['id' => $template->getId()]);
+        $user = $this->getUser();
+
+        if (!$user || (!$this->isGranted('ROLE_ADMIN') && $template->getAuthor() !== $user)) {
+            return new JsonResponse(['success' => false, 'error' => 'Доступ запрещен'], 403);
         }
 
-        if ($this->isCsrfTokenValid('delete'.$template->getId(), $request->request->get('_token'))) {
-            $entityManager->remove($template);
-            $entityManager->flush();
-            $this->addFlash('success', 'Шаблон успешно удалён.');
-        }
+        $entityManager->remove($template);
+        $entityManager->flush();
 
-        return $this->redirectToRoute('template_index'); // Перенаправление на главную страницу
+        return new JsonResponse(['success' => true]);
     }
+
 
 }
