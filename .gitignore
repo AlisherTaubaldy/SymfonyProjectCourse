@@ -18,12 +18,7 @@
 
 ### Webpack Encore ###
 /node_modules/
-/public/build/
-/public/assets/
-/public/css/
-/public/js/
-/public/fonts/
-/public/images/
+
 npm-debug.log
 yarn-error.log
 .pnp
