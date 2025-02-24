@@ -21,7 +21,6 @@ class FormController extends AbstractController
     {
         $user = $this->getUser();
 
-        // Получаем все публичные шаблоны + личные шаблоны пользователя
         $qb = $entityManager->createQueryBuilder();
         $qb->select('t')
             ->from(Template::class, 't')
@@ -59,7 +58,6 @@ class FormController extends AbstractController
     public function fillForm(Request $request, Template $template, EntityManagerInterface $entityManager)
     {
 
-        // Получаем или создаем форму пользователя
         $formEntity = $entityManager->getRepository(Form::class)->findOneBy([
             'user' => $this->getUser(),
             'template' => $template
@@ -68,7 +66,6 @@ class FormController extends AbstractController
         $formEntity->setTemplate($template);
         $formEntity->setUser($this->getUser());
 
-        // Загружаем все вопросы
         $questions = $template->getQuestions()->toArray();
         $form = $this->createForm(FormType::class, null, ['questions' => $questions]);
         $form->handleRequest($request);

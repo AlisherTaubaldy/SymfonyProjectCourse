@@ -22,10 +22,8 @@ class TemplateController extends AbstractController
         $user = $this->getUser();
 
         if ($this->isGranted('ROLE_ADMIN')) {
-            // Если админ, показываем все шаблоны
             $templates = $templateRepository->findBy([], ['createdAt' => 'DESC']);
         } else {
-            // Если обычный пользователь, показываем только его шаблоны
             $templates = $templateRepository->findBy(['author' => $user], ['createdAt' => 'DESC']);
         }
 
@@ -57,7 +55,11 @@ class TemplateController extends AbstractController
     #[Route('/{id}/edit', name: 'template_edit', methods: ['GET', 'POST'])]
     public function show(Request $request, Template $template, EntityManagerInterface $entityManager): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        if (!$this->isGranted('ROLE_ADMIN') && $template->getAuthor() !== $this->getUser()) {
+            $this->addFlash('error', 'Вы не имеете доступа к этому шаблону.');
+            return $this->redirectToRoute('template_index');
+        }
 
         $question = new Question();
         $question->setTemplate($template);
@@ -96,6 +98,4 @@ class TemplateController extends AbstractController
 
         return new JsonResponse(['success' => true]);
     }
-
-
 }

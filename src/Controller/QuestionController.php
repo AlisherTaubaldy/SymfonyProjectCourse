@@ -18,7 +18,11 @@ class QuestionController extends AbstractController
     #[Route('/new/{template}', name: 'question_new', methods: ['POST'])]
     public function new(Request $request, Template $template, EntityManagerInterface $entityManager): JsonResponse
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        $user = $this->getUser();
+
+        if (!$this->isGranted('ROLE_ADMIN') && $template->getAuthor() !== $user) {
+            return new JsonResponse(['success' => false, 'error' => 'Доступ запрещен'], 403);
+        }
 
         $question = new Question();
         $question->setTemplate($template);
@@ -53,8 +57,12 @@ class QuestionController extends AbstractController
     #[Route('/delete/{id}', name: 'question_delete', methods: ['POST'])]
     public function delete(Question $question, EntityManagerInterface $entityManager): JsonResponse
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        $user = $this->getUser();
+        $template = $question->getTemplate();
 
+        if (!$this->isGranted('ROLE_ADMIN') && $template->getAuthor() !== $user) {
+            return new JsonResponse(['success' => false, 'error' => 'Доступ запрещен'], 403);
+        }
         $entityManager->remove($question);
         $entityManager->flush();
 
@@ -64,7 +72,12 @@ class QuestionController extends AbstractController
     #[Route('/edit/{id}', name: 'question_edit', methods: ['POST'])]
     public function edit(Request $request, Question $question, EntityManagerInterface $entityManager): JsonResponse
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        $user = $this->getUser();
+        $template = $question->getTemplate();
+
+        if (!$this->isGranted('ROLE_ADMIN') && $template->getAuthor() !== $user) {
+            return new JsonResponse(['success' => false, 'error' => 'Доступ запрещен'], 403);
+        }
 
         $form = $this->createForm(QuestionType::class, $question, ['template' => $question->getTemplate()]);
         $form->handleRequest($request);

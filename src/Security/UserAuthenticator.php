@@ -75,7 +75,7 @@ class UserAuthenticator extends AbstractAuthenticator
             $this->entityManager->flush();
         }
 
-        return new RedirectResponse($this->urlGenerator->generate('app_users'));
+        return new RedirectResponse($this->urlGenerator->generate('template_index'));
     }
 
     /**
