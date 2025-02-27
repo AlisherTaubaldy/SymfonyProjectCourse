@@ -12,6 +12,7 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
+use Symfony\Component\Security\Http\Authenticator\Passport\Credentials\PasswordCredentials;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -54,8 +55,11 @@ class UserAuthenticator extends AbstractAuthenticator
             throw new CustomUserMessageAuthenticationException('Your account is blocked.');
         }
 
-        return new SelfValidatingPassport(
-            new UserBadge($email)
+        return new Passport(
+            new UserBadge($email, function ($userIdentifier) {
+                return $this->getUserByEmail($userIdentifier);
+            }),
+            new PasswordCredentials($password)
         );
     }
 
