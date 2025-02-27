@@ -47,6 +47,7 @@
                             <th style="width: 15%;">Status</th>
                             <th style="width: 15%;">Last Login</th>
                             <th style="width: 15%;">Created At</th>
+                            <th style="width: 15%;">Updated At</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -69,6 +70,7 @@
                                 </td>
                                 <td>{{ user.lastLogin ? user.lastLogin|date('Y-m-d H:i:s') : 'Never' }}</td>
                                 <td>{{ user.createdAt ? user.createdAt|date('Y-m-d H:i:s') : 'Unknown' }}</td>
+                                <td>{{ user.updatedAt ? user.createdAt|date('Y-m-d H:i:s') : 'Unknown' }}</td>
                             </tr>
                         {% else %}
                             <tr>
