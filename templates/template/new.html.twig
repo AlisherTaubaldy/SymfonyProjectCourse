@@ -15,8 +15,6 @@
         {{ form_widget(form.description, { 'attr': {'class': 'form-control'} }) }}
         {{ form_errors(form.description) }}
     </div>
-
-    <button type="submit" class="btn btn-primary">Сохранить</button>
     <a href="{{ path('template_index') }}" class="btn btn-secondary">Отмена</a>
     {{ form_end(form) }}
 {% endblock %}
