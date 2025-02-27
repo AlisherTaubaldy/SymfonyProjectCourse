@@ -70,7 +70,7 @@
                                 </td>
                                 <td>{{ user.lastLogin ? user.lastLogin|date('Y-m-d H:i:s') : 'Never' }}</td>
                                 <td>{{ user.createdAt ? user.createdAt|date('Y-m-d H:i:s') : 'Unknown' }}</td>
-                                <td>{{ user.updatedAt ? user.createdAt|date('Y-m-d H:i:s') : 'Unknown' }}</td>
+                                <td>{{ user.updatedAt ? user.updatedAt|date('Y-m-d H:i:s') : 'Unknown' }}</td>
                             </tr>
                         {% else %}
                             <tr>
