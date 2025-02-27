@@ -33,19 +33,7 @@ class QuestionController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->persist($question);
 
-            // ✅ Обрабатываем варианты ответов
-            $optionsData = $request->request->all()['options'] ?? [];
-            $correctAnswers = $request->request->all()['is_correct'] ?? [];
-
-            foreach ($optionsData as $index => $optionValue) {
-                if (!empty($optionValue)) {
-                    $option = new AnswerOption();
-                    $option->setValue($optionValue);
-                    $option->setCorrect(in_array((string) $index, $correctAnswers, true));
-                    $option->setQuestion($question);
-                    $entityManager->persist($option);
-                }
-            }
+            $this->handleAnswerOptions($request, $question, $entityManager);
 
             $entityManager->flush();
             return new JsonResponse(['success' => true]);
@@ -88,19 +76,7 @@ class QuestionController extends AbstractController
             }
             $entityManager->flush();
 
-            $optionsData = $request->request->all()['options'] ?? [];
-            $correctAnswers = $request->request->all()['is_correct'] ?? [];
-
-
-            foreach ($optionsData as $index => $optionValue) {
-                if (!empty($optionValue)) {
-                    $option = new AnswerOption();
-                    $option->setValue($optionValue);
-                    $option->setCorrect(in_array((string) $index, $correctAnswers, true));
-                    $option->setQuestion($question);
-                    $entityManager->persist($option);
-                }
-            }
+            $this->handleAnswerOptions($request, $question, $entityManager);
 
             $entityManager->flush();
             return new JsonResponse(['success' => true]);
@@ -124,4 +100,21 @@ class QuestionController extends AbstractController
             ], $question->getOptions()->toArray()),
         ]);
     }
+
+    private function handleAnswerOptions(Request $request, Question $question, EntityManagerInterface $entityManager): void
+    {
+        $optionsData = $request->request->all()['options'] ?? [];
+        $correctAnswers = $request->request->all()['is_correct'] ?? [];
+
+        foreach ($optionsData as $index => $optionValue) {
+            if (!empty($optionValue)) {
+                $option = new AnswerOption();
+                $option->setValue($optionValue);
+                $option->setCorrect(in_array((string) $index, $correctAnswers, true));
+                $option->setQuestion($question);
+                $entityManager->persist($option);
+            }
+        }
+    }
+
 }

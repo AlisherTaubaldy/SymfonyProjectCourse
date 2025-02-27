@@ -33,7 +33,7 @@ class Answer
 
     #[ORM\ManyToMany(targetEntity: AnswerOption::class)]
     #[ORM\JoinTable(name: "answer_selected_options")]
-    private Collection $selectedOptions; // ✅ Теперь список вариантов ответа
+    private Collection $selectedOptions;
 
     public function __construct()
     {

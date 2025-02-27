@@ -115,7 +115,6 @@ class FormController extends AbstractController
     #[Route('/complete/{id}', name: 'form_complete', methods: ['GET'])]
     public function completeForm(Form $form)
     {
-
         return $this->render('form/complete.html.twig', [
             'form' => $form
         ]);

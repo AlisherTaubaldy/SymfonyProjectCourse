@@ -30,8 +30,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 20, options: ['default' => 'active'])]
     private ?string $status = 'active';
 
-    #[ORM\Column(length: 255, options: ['default' => 'ROLE_ADMIN'])]
-    private ?string $role = 'ROLE_ADMIN';
+    #[ORM\Column(length: 255, options: ['default' => 'ROLE_USER'])]
+    private ?string $role = 'ROLE_USER';
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $lastLogin = null;
